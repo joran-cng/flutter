@@ -2,11 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/spacing.dart';
 
-/// Pastille arrondie purement décorative (aucun comportement au tap, comme
-/// demandé par l'énoncé pour les filtres de la partie B).
-///
-/// Reçoit uniquement une [String] et un état [selected] booléen : elle
-/// ignore totalement l'existence d'un `Event` ou d'une catégorie métier.
 class CategoryPill extends StatelessWidget {
   const CategoryPill({super.key, required this.label, this.selected = false});
 

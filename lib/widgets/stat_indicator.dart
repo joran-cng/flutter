@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Indicateur statistique : une valeur mise en avant et un libellé sous
-/// elle, centrés, destiné à occuper une des trois zones égales de la barre
-/// de statistiques.
-///
-/// Ne reçoit que des `String` : il ignore d'où vient la valeur (un compte
-/// d'événements, de catégories ou d'inscrits). `FittedBox` garantit que la
-/// valeur ne déborde jamais de sa zone même si elle passe à cinq chiffres,
-/// sans jamais faire appel à `MediaQuery`.
 class StatIndicator extends StatelessWidget {
   const StatIndicator({super.key, required this.value, required this.label});
 

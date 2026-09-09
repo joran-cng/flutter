@@ -2,13 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/spacing.dart';
 
-/// Ligne « icône + libellé » réutilisable.
-///
-/// Ne connaît rien du modèle `Event` : elle reçoit une [IconData] et une
-/// [String], ce qui lui permet de servir aussi bien pour le lieu que pour
-/// la date, ou pour tout autre couple icône/texte futur. Le texte est
-/// tronqué avec ellipse pour ne jamais faire déborder la ligne quand le
-/// libellé est long (nom de lieu long du jeu de données, par exemple).
 class IconLabel extends StatelessWidget {
   const IconLabel({
     super.key,

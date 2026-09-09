@@ -2,21 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../theme/spacing.dart';
 
-/// En-tête héros de l'écran (partie B, exigence 1).
-///
-/// Reçoit uniquement des types primitifs (chaînes, hauteur) : il n'a pas
-/// besoin de connaître `Event`, ce n'est pas une carte d'événement mais un
-/// bandeau d'écran.
-///
-/// Structure en `Stack` : image de fond, voile dégradé, textes en bas à
-/// gauche, avatar en haut à droite qui déborde volontairement du cadre.
-/// Le débordement de l'avatar est obtenu en donnant au `Positioned` de
-/// l'avatar une valeur `bottom` négative : une partie du cercle sort donc
-/// sous le bord inférieur du bandeau. Pour que ce débordement reste
-/// visible plutôt que d'être rogné, le `Stack` racine porte explicitement
-/// `clipBehavior: Clip.none` — le comportement par défaut de `Stack`
-/// (`Clip.hardEdge`) aurait rogné l'avatar au ras du cadre, ce qui est
-/// justement le point évalué par l'énoncé.
 class HeroHeader extends StatelessWidget {
   const HeroHeader({
     super.key,
@@ -59,9 +44,6 @@ class HeroHeader extends StatelessWidget {
                       return Container(color: Colors.blueGrey.shade800);
                     },
                   ),
-                  // Voile dégradé sombre du bas vers le haut : garantit la
-                  // lisibilité du texte blanc posé par-dessus, quelle que
-                  // soit la photo de fond.
                   DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -109,15 +91,6 @@ class HeroHeader extends StatelessWidget {
               ),
             ),
           ),
-          // Avatar : ancré en haut à droite du cadre de l'image, mais
-          // positionné verticalement pour qu'une partie de son diamètre
-          // sorte sous la frontière de l'image (`height`). `top` est donc
-          // calculé pour que le bas du cercle atteigne `height +
-          // _avatarOverflow`, ce qui correspond exactement à la place
-          // réservée par le `SizedBox` racine. Utiliser `top` seul (plutôt
-          // que `top` et `bottom` combinés) évite que `Positioned` ne
-          // réétire le cercle en ovale : la taille du cercle reste fixée
-          // par le `Container`.
           Positioned(
             top: height - _avatarDiameter + _avatarOverflow,
             right: Spacing.lg,

@@ -1,10 +1,3 @@
-/// Formatage de date « fait maison », sans dépendance externe.
-///
-/// L'énoncé exclut explicitement `intl` pour ce TP : cette fonction pure
-/// prend un [DateTime] et retourne une chaîne du type
-/// « ven. 12 juin, 18h30 ». Étant une fonction pure (aucun effet de bord,
-/// aucun accès au contexte Flutter), elle est trivialement testable en
-/// dehors de l'arbre de widgets.
 String formatEventDate(DateTime date) {
   const weekdays = <String>[
     'lun.',

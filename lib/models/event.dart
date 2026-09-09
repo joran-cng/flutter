@@ -1,8 +1,6 @@
-/// Modèle de données immuable représentant un événement du cycle de
-/// conférences. Reproduit exactement la signature imposée par l'énoncé du
-/// TP 2 : aucun champ ajouté, aucune méthode métier, uniquement des données.
 class Event {
   const Event({
+    required this.id,
     required this.title,
     required this.city,
     required this.venue,
@@ -15,13 +13,14 @@ class Event {
     this.isOnline = false,
   });
 
-  final String title; // peut être long, voir sample_events.dart
+  final String id;
+  final String title;
   final String city;
   final String venue;
   final DateTime date;
-  final String category; // « Conférence », « Atelier », « Meetup », « Table ronde »
+  final String category;
   final int capacity;
-  final int registered; // peut dépasser capacity : liste d'attente
+  final int registered;
   final String imageUrl;
   final bool isSoldOut;
   final bool isOnline;

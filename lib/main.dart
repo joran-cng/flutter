@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'screens/event_wall_screen.dart';
+import 'routes/app_routes.dart';
+import 'routes/route_generator.dart';
+import 'screens/main_shell.dart';
 
 void main() {
   runApp(const EventPlannerApp());
 }
 
-/// Point d'entrée minimal : un `MaterialApp` pointant directement sur
-/// l'écran du mur d'événements. Aucun `Navigator` ni route nommée n'est
-/// nécessaire pour ce TP : `home` suffit.
 class EventPlannerApp extends StatelessWidget {
   const EventPlannerApp({super.key});
 
@@ -21,7 +20,17 @@ class EventPlannerApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: const EventWallScreen(),
+      initialRoute: AppRoutes.home,
+      onGenerateRoute: (settings) {
+        if (settings.name == AppRoutes.home || settings.name == null) {
+          return MaterialPageRoute<void>(
+            settings: const RouteSettings(name: AppRoutes.home),
+            builder: (_) => const MainShell(),
+          );
+        }
+        return RouteGenerator.onGenerateRoute(settings);
+      },
+      onUnknownRoute: RouteGenerator.onUnknownRoute,
     );
   }
 }

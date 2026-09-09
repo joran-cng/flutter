@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../data/sample_events.dart';
+import '../models/event.dart';
+import '../routes/app_routes.dart';
 import '../theme/spacing.dart';
 import '../widgets/category_pill.dart';
 import '../widgets/event_card.dart';
 import '../widgets/hero_header.dart';
 import '../widgets/stat_indicator.dart';
 
-/// Écran d'accueil complet du mur d'événements (partie B).
-///
-/// C'est l'unique `StatefulWidget` de l'application, et son seul état est
-/// un booléen de densité basculé par `setState` (partie C, exigence 2) :
-/// c'est le seul état autorisé par le périmètre du TP.
 class EventWallScreen extends StatefulWidget {
   const EventWallScreen({super.key});
 
@@ -34,11 +31,8 @@ class _EventWallScreenState extends State<EventWallScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Event Planner'),
+        automaticallyImplyLeading: false,
         actions: [
-          // Seul point d'état de l'application : un `setState` sur un
-          // booléen, qui bascule la densité de toute la liste. Aucune
-          // notion de séance ultérieure (Provider, InheritedWidget...)
-          // n'est nécessaire pour un besoin aussi local.
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -52,9 +46,6 @@ class _EventWallScreenState extends State<EventWallScreen> {
           const SizedBox(width: Spacing.sm),
         ],
       ),
-      // L'écran entier défile d'un seul mouvement : un unique
-      // `SingleChildScrollView` racine, jamais de `ListView` imbriquée à
-      // l'intérieur (la liste d'événements est une simple `Column`).
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -77,7 +68,7 @@ class _EventWallScreenState extends State<EventWallScreen> {
             _SectionHeader(count: events.length),
             const SizedBox(height: Spacing.xs),
             for (final event in events)
-              EventCard(event: event, density: density),
+              _TappableEventCard(event: event, density: density),
             const SizedBox(height: Spacing.lg),
             const _Footer(),
           ],
@@ -87,16 +78,6 @@ class _EventWallScreenState extends State<EventWallScreen> {
   }
 }
 
-/// Barre de statistiques : trois zones de largeur strictement égale,
-/// séparées par des séparateurs verticaux pleine hauteur.
-///
-/// Trois `Expanded` de `flex: 1` garantissent l'égalité stricte des
-/// largeurs quelle que soit la longueur du texte affiché. Les séparateurs
-/// doivent occuper toute la hauteur de la barre : un simple `VerticalDivider`
-/// sans hauteur explicite se contenterait de la hauteur intrinsèque de son
-/// parent le plus proche, qui peut être nulle dans un `Row` — d'où
-/// l'enrobage par `IntrinsicHeight`, qui force tous les enfants du `Row` à
-/// prendre la hauteur du plus grand d'entre eux.
 class _StatsBar extends StatelessWidget {
   const _StatsBar({
     required this.eventCount,
@@ -149,9 +130,6 @@ class _StatsBar extends StatelessWidget {
   }
 }
 
-/// Rangée de filtres par catégorie, purement décorative, qui passe à la
-/// ligne automatiquement grâce à `Wrap` — pas de calcul de largeur manuel,
-/// et surtout pas de `LayoutBuilder`, hors périmètre du TP.
 class _FiltersRow extends StatelessWidget {
   const _FiltersRow({required this.categories});
 
@@ -173,12 +151,6 @@ class _FiltersRow extends StatelessWidget {
   }
 }
 
-/// Titre de section et compteur aux extrêmes d'une même ligne.
-///
-/// `MainAxisAlignment.spaceBetween` plaque les deux extrêmes contre les
-/// bords sans recourir à un `Spacer` : il n'y a que deux enfants ici, donc
-/// `spaceBetween` exprime directement l'intention (« aux extrêmes ») sans
-/// nœud intermédiaire superflu.
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({required this.count});
 
@@ -208,8 +180,33 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-/// Pied d'écran : mention légale centrée, à distance constante (padding
-/// fixe issu de `Spacing`) du dernier élément qui la précède.
+class _TappableEventCard extends StatelessWidget {
+  const _TappableEventCard({
+    required this.event,
+    required this.density,
+  });
+
+  final Event event;
+  final EventCardDensity density;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.eventDetail,
+            arguments: event.id,
+          );
+        },
+        child: EventCard(event: event, density: density),
+      ),
+    );
+  }
+}
+
 class _Footer extends StatelessWidget {
   const _Footer();
 

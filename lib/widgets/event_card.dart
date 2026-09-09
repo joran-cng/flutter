@@ -6,19 +6,8 @@ import '../utils/date_label.dart';
 import 'capacity_gauge.dart';
 import 'icon_label.dart';
 
-/// Deux densités d'affichage pour `EventCard` (partie C, exigence 2).
-///
-/// `comfortable` est la densité par défaut de la partie A ; `compact`
-/// réduit la vignette, retire la jauge et limite le titre à une ligne.
 enum EventCardDensity { comfortable, compact }
 
-/// Carte présentant un [Event] : vignette carrée à gauche, bloc textuel à
-/// droite (titre, lieu, date, jauge).
-///
-/// L'ordre de l'arborescence suit strictement celui imposé par l'énoncé :
-/// `Container` externe (décoration) > `Row` > vignette contrainte à gauche,
-/// bloc textuel `Column` à droite avec, dans l'ordre, le titre, la ligne
-/// lieu, la ligne date, puis la jauge.
 class EventCard extends StatelessWidget {
   const EventCard({
     super.key,
@@ -61,10 +50,6 @@ class EventCard extends StatelessWidget {
             isSoldOut: event.isSoldOut,
           ),
           const SizedBox(width: Spacing.md),
-          // `Expanded` force le bloc textuel à occuper tout l'espace
-          // horizontal restant, quelle que soit la largeur de la carte :
-          // c'est ce qui empêche un titre long de pousser la vignette hors
-          // cadre et de provoquer un `RenderFlex overflowed`.
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,13 +105,6 @@ class EventCard extends StatelessWidget {
   }
 }
 
-/// Vignette carrée contrainte par `SizedBox` + `AspectRatio`, avec un
-/// `errorBuilder` pour rester correcte sans accès réseau, et un badge
-/// « Complet » superposé (via `Stack`) lorsque l'événement est complet.
-///
-/// Le badge est posé sur la vignette plutôt qu'inséré dans la `Column`
-/// textuelle : cela préserve l'ordre imposé par l'énoncé pour le bloc de
-/// droite (titre, lieu, date, jauge) sans ajouter de nœud supplémentaire.
 class _Thumbnail extends StatelessWidget {
   const _Thumbnail({
     required this.imageUrl,
