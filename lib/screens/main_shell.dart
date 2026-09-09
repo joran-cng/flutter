@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../data/event_repository.dart';
 import '../routes/app_routes.dart';
 import '../routes/route_generator.dart';
 
@@ -15,6 +17,15 @@ class MainShell extends StatefulWidget {
     return true;
   }
 
+  static bool goToCartTabFrom(BuildContext context) {
+    final state = context.findAncestorStateOfType<MainShellState>();
+    if (state == null) {
+      return false;
+    }
+    state.goToCartTab();
+    return true;
+  }
+
   static int? currentTabIndex(BuildContext context) {
     return context.findAncestorStateOfType<MainShellState>()?.currentTabIndex;
   }
@@ -25,7 +36,7 @@ class MainShell extends StatefulWidget {
 
 class MainShellState extends State<MainShell> {
   final _homeNavigatorKey = GlobalKey<NavigatorState>();
-  final _reservationsNavigatorKey = GlobalKey<NavigatorState>();
+  final _cartNavigatorKey = GlobalKey<NavigatorState>();
 
   int _currentIndex = 0;
 
@@ -39,10 +50,14 @@ class MainShellState extends State<MainShell> {
     );
   }
 
+  void goToCartTab() {
+    setState(() => _currentIndex = 1);
+  }
+
   NavigatorState? get _activeNavigator {
     return switch (_currentIndex) {
       0 => _homeNavigatorKey.currentState,
-      1 => _reservationsNavigatorKey.currentState,
+      1 => _cartNavigatorKey.currentState,
       _ => null,
     };
   }
@@ -65,6 +80,8 @@ class MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<EventRepository>();
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -79,12 +96,17 @@ class MainShellState extends State<MainShell> {
             Navigator(
               key: _homeNavigatorKey,
               initialRoute: AppRoutes.home,
-              onGenerateRoute: RouteGenerator.onGenerateHomeTabRoute,
+              onGenerateRoute: (settings) =>
+                  RouteGenerator.onGenerateHomeTabRoute(settings, repository),
             ),
             Navigator(
-              key: _reservationsNavigatorKey,
+              key: _cartNavigatorKey,
               initialRoute: AppRoutes.reservations,
-              onGenerateRoute: RouteGenerator.onGenerateReservationsTabRoute,
+              onGenerateRoute: (settings) =>
+                  RouteGenerator.onGenerateReservationsTabRoute(
+                    settings,
+                    repository,
+                  ),
             ),
           ],
         ),
@@ -100,9 +122,9 @@ class MainShellState extends State<MainShell> {
               label: 'Accueil',
             ),
             NavigationDestination(
-              icon: Icon(Icons.event_note_outlined),
-              selectedIcon: Icon(Icons.event_note),
-              label: 'Mes réservations',
+              icon: Icon(Icons.shopping_cart_outlined),
+              selectedIcon: Icon(Icons.shopping_cart),
+              label: 'Panier',
             ),
           ],
         ),

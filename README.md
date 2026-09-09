@@ -1,60 +1,98 @@
 # flutter_application_1
 
-Application Flutter — Event Planner (TP 2 + TP 3).
+Application Flutter — Event Planner (TP 4 — Provider).
 
-> J'étais absent le jour du TP02 (absence justifiée). Comme convenu avec le professeur, je reprends directement au TP03 à partir de la correction du TP02.
+> J'étais absent le jour du TP02 (absence justifiée). Comme convenu avec le professeur, je reprends directement au TP03 à partir de la correction du TP02, puis au TP04.
 
-## TP 3 — Navigation et routes
+## Partie A — Callbacks vs `ChangeNotifier`
 
-### Flèche de retour automatique de l'AppBar (Partie A.1)
+### Montage initial (callbacks, 5 incréments simulés)
 
-Lorsqu'un écran est empilé via `Navigator.push` ou `pushNamed`, Flutter insère automatiquement une `AppBar` avec un bouton retour dès que la pile contient plus d'une route. Ce comportement est géré par le `Navigator` et le widget `AppBar` (`automaticallyImplyLeading: true` par défaut) : aucun code supplémentaire n'est nécessaire.
+| Widget | Appels à `build` |
+| --- | --- |
+| `EventTile` | 5 |
+| `EventSection` | 5 |
+| `CartBadge` | 5 |
 
-### Pourquoi `routes:` seule est insuffisante pour le détail (Partie A.2)
+L'état vivait dans `EventListScreen` et remontait par paramètres sur trois niveaux. Après un `push` vers un écran factice puis `pop`, le compteur était perdu car l'écran liste était reconstruit sans état global.
 
-La table statique `routes:` du `MaterialApp` ne permet de déclarer que des constructeurs sans arguments dynamiques connus à la compilation. Or la route de détail reçoit un identifiant (`String id`) choisi au moment du tap sur une carte. On emploie donc `onGenerateRoute`, qui lit `RouteSettings.arguments` au moment de la navigation et construit l'écran approprié (ou un écran d'erreur).
+### Constat (A.2)
 
-### `pushReplacement` sur la confirmation (Partie B)
+**(a) Plomberie de callbacks** — `EventSection` ne consomme pas le compteur mais doit le transmettre, ce qui couple les niveaux intermédiaires à une donnée qui ne les concerne pas.
 
-L'écran de confirmation remplace l'écran de détail dans la pile (`pushReplacement` / `pushReplacementNamed`). Ainsi, le bouton retour matériel depuis la confirmation ne ramène ni sur la sélection de formule ni sur le détail (déjà retirés ou jamais empilés après le remplacement), mais directement sur le mur d'événements qui se trouvait sous le détail.
+**(b) Recompositions** — un seul incrément reconstruit la branche complète (section, tuile, badge) car le `setState` est déclenché au niveau racine.
 
-### Retour à l'accueil : `popUntil` plutôt que `pushAndRemoveUntil` (Partie B)
+**(c) Fragilité à la navigation** — l'état local meurt avec le widget qui le possède ; dès que la pile de navigation reconstruit l'écran liste, la valeur repart à zéro.
 
-Le bouton « Retour à l'accueil » appelle `Navigator.popUntil((route) => route.isFirst)`. Ce choix préserve l'instance existante du mur d'événements (position de défilement incluse), alors que `pushAndRemoveUntil` recréerait un nouvel écran d'accueil en poussant une route fraîche.
+### Après migration Provider (5 ajouts au panier, `Selector` sur les tuiles)
 
-### Erreurs d'arguments vs route 404 (Partie C)
+| Widget | Appels à `build` |
+| --- | --- |
+| `EventTile` | 5 |
+| `EventSection` | 0 |
+| `CartBadge` | 5 |
 
-Deux écrans distincts sont volontairement séparés :
+`ChangeNotifierProvider<RegistrationCart>` est placé au-dessus du `MaterialApp`. Le compteur survit au `push`/`pop` car le notifier vit au-dessus de la navigation.
 
-- **`RouteErrorScreen`** : arguments absents, type inattendu ou identifiant valide mais inexistant dans le jeu de données — erreurs sur une route *connue* (`/event-detail`).
-- **`NotFoundScreen`** : nom de route non enregistré (`onUnknownRoute`) — erreur d'adressage, pas de données.
+## Partie B — Panier et préférences
 
-Cette séparation clarifie le diagnostic pour l'utilisateur et le relecteur.
+### Règles métier du panier
 
-### Table des routes
+- **Doublon d'événement** : un même événement ne peut pas apparaître deux fois ; un nouvel ajout **met à jour** l'inscription existante (session + quantité).
+- **Événement complet** : refus si `inscrits + places panier > capacité`.
+- **Plafond utilisateur** : maximum **10 places** toutes inscriptions confondues (`RegistrationCart.maxUserPlaces`).
 
-| Nom de route | Constante | Arguments attendus | Type de retour |
+Chaque opération retourne un `CartOperationResult` exploitable (`success`, `updated`, `eventFull`, `quotaExceeded`, etc.).
+
+### Badge universel
+
+Scénario vérifié : ajout depuis l'écran détail → retour liste → le badge affiche déjà le total sans action supplémentaire.
+
+## Partie C — Recomposition et injection
+
+### C.1 — Consumer large vs `Selector` (3 ajouts panier + 1 changement de tri)
+
+| Configuration | `EventTile` | `CartBadge` |
+| --- | --- | --- |
+| `Consumer<RegistrationCart>` sur chaque tuile | 27 | 3 |
+| `Selector` (`isEventInCart` uniquement) | 3 | 3 |
+
+Les chiffres proviennent des compteurs affichés en bas de l'écran liste (`BuildCounter`).
+
+### C.2 — Choix `watch` / `read` / `select`
+
+| Fichier | Donnée lue | Méthode | Justification |
 | --- | --- | --- | --- |
-| Accueil (coque à onglets) | `AppRoutes.home` | aucun | aucun (`void`) |
-| Détail d'un événement | `AppRoutes.eventDetail` | `String id` | aucun (`void`) |
-| Sélection de formule | `AppRoutes.packageSelection` | `String id` (événement) | `ParticipationPackage?` |
-| Confirmation | `AppRoutes.confirmation` | `ConfirmationRouteArgs` | aucun (`void`) |
-| Mes réservations | `AppRoutes.reservations` | aucun | aucun (`void`) |
-| Route inconnue | *(aucune constante)* | libre | aucun (`void`) → `NotFoundScreen` |
+| `event_tile.dart` — bouton +1 | panier (mutation) | `read` | Action ponctuelle, pas de rebuild |
+| `event_tile.dart` — surbrillance | `isEventInCart` | `Selector` | Booléen isolé, évite rebuild sur tout le panier |
+| `cart_badge.dart` | `totalPlaces` | `Selector` | Seul le total doit rafraîchir l'icône |
+| `event_detail_screen.dart` | places réservées | `select` | Une seule valeur entière par événement |
+| `event_list_screen.dart` | `EventListState` | `watch` | L'écran entier change selon loading/loaded/error |
+| `event_list_screen.dart` | `DisplayPreferences` | `watch` | Filtres et tri impactent toute la liste |
+| `cart_summary_screen.dart` | items du panier | `watch` | Liste complète à afficher |
+| `main_shell.dart` | `EventRepository` | `read` | Lecture stable pour générer les routes |
 
-### Réflexion : identifiant vs objet complet dans les arguments
+### C.3 — Injection du dépôt
 
-Passer un identifiant plutôt qu'un objet `Event` complet dans les arguments de route transforme la route en contrat stable et sérialisable. Un identifiant est une primitive légère, comparable à un segment d'URL, facile à transmettre, à logger et à valider indépendamment de la taille ou de la structure de l'objet métier. En revanche, cela impose une résolution explicite (recherche dans le jeu de données local) et oblige à gérer les cas où l'identifiant est absent, mal typé ou inconnu — ce que centralise `RouteGenerator.resolveEventDetailArgs`.
+`EventRepository` est fourni par `Provider<EventRepository>`. `RegistrationCart` le reçoit via `ChangeNotifierProxyProvider` et **ne l'instancie jamais**. Cela permettra, en séance 5, de remplacer le dépôt en mémoire par une source réseau en changeant uniquement l'injection dans `main.dart`, sans modifier la logique du panier.
 
-Pour un **deep link** ouvrant directement l'écran de détail sans passer par l'accueil, l'identifiant est l'information minimale suffisante : une URL du type `/event-detail/evt-004` peut être mappée vers `AppRoutes.eventDetail` avec `arguments: 'evt-004'`, puis résolue côté application. Transporter l'objet complet sérialisé dans l'URL serait lourd, fragile et couplé à la structure interne du modèle.
+### C.4 — Machine à états liste
 
-Pour la **restauration d'état après redémarrage**, seul un identifiant (ou une pile de routes nommées + arguments sérialisables) peut être persisté de façon fiable : on sauvegarderait par exemple la route courante et son `String id`, puis au relancement on régénérerait l'écran via `onGenerateRoute` et `findEventById`. Un objet `Event` complet en mémoire ne survit pas au process kill ; il faudrait de toute façon le reconstruire depuis une source, ce qui revient conceptuellement à repasser par l'identifiant.
+`EventListState` scellée : `EventListLoading`, `EventListLoaded`, `EventListError`. Chargement simulé avec `Future.delayed` (500 ms). Bouton « Simuler une erreur » pour tester le cas d'échec.
 
-Enfin, l'identifiant découple la navigation de la provenance des données : aujourd'hui le jeu est codé en dur, demain il pourrait venir d'un cache ou d'un réseau, sans changer le contrat de la route. C'est cette stabilité du contrat qui justifie le choix imposé en Partie C, même si, dans ce TP, la résolution reste locale et synchrone.
+## Partie D — Frontière local / global
 
-## Partie D — Navigateurs imbriqués
+Panell « Aide rapide » sur l'écran liste : état ouvert/fermé via `ValueNotifier` local + `ValueListenableBuilder` (aucun `Provider`).
 
-Deux onglets (« Accueil », « Mes réservations ») disposent chacun d'un `Navigator` avec sa propre pile (`IndexedStack` + `GlobalKey<NavigatorState>`). Changer d'onglet ne réinitialise pas la pile quittée. Le bouton retour matériel dépile d'abord l'onglet actif ; lorsque sa pile est à la racine, il ramène au premier onglet.
+### Frontière état local / état global
+
+**Critère retenu** : une donnée est globale si plusieurs écrans distants doivent la lire ou la modifier, ou si elle doit survivre à la navigation ; elle est locale si un seul sous-arbre en a besoin temporairement.
+
+**Exemple local** — expansion du panneau d'aide : un seul widget consommateur, aucun impact sur le panier, état jetable à la destruction de l'écran.
+
+**Exemple global** — `RegistrationCart` : badge sur tous les écrans, modifications depuis liste et détail, persistance tant que l'app tourne.
+
+**Cas limite** — densité d'affichage (compact/confortable) : pourrait rester locale à l'écran liste, mais j'ai choisi `DisplayPreferences` global car le TP demande un second notifier indépendant et le réglage peut légitimement s'appliquer au détail ; le critère « nombre de consommateurs » aurait pu justifier un état local strict.
 
 ## Lancer l'application
 
@@ -63,6 +101,6 @@ flutter pub get
 flutter run
 ```
 
-## Captures d'écran
+## Captures
 
-Les captures du parcours complet se trouvent dans le dossier `captures/`.
+Voir le dossier `captures/`.

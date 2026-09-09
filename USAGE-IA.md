@@ -1,10 +1,9 @@
 # USAGE-IA — TP 3 — CAUNEGRE Joran
 
-Outil(s) utilisé(s) : ChatGPT (GPT-4o) / Cursor (autocomplétion)
-Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dessous
+Outil(s) utilisé(s) : Cursor (composer)
 
 ## Entrée 1
-- Date et heure : 09/03/2026, 09h15
+- Date et heure : 09/03/2026, 09h40
 - Partie du TP concernée : Partie A.2 — migration vers routes nommées
 - Pourquoi j'ai sollicité l'IA : je ne comprenais pas pourquoi la table `routes:` du `MaterialApp` ne suffisait pas pour passer un événement au détail
 - Ce que j'ai demandé : une explication simple de la différence entre `routes:` et `onGenerateRoute`, avec un petit exemple
@@ -46,3 +45,106 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Sur quoi l'IA m'a réellement fait gagner du temps : clarification des notions de routes nommées, typage du `Future` de retour et comportement de `PopScope`
 - Sur quoi elle m'a coûté du temps : première proposition pour les onglets imbriqués incomplète, à ajuster après tests sur téléphone
 - Ce que je saurais refaire sans elle à l'issue de ce TP : enchaîner `pushNamed`, récupérer un retour nullable, valider des arguments dans `onGenerateRoute`, et corriger une pile de navigation imbriquée
+
+---
+
+# USAGE-IA — TP 4 — CAUNEGRE Joran
+
+Outil(s) utilisé(s) : Cursor (composer)
+
+## Entrée 1
+- Date et heure : 09/03/2026, 14h30
+- Partie du TP concernée : Partie A.1 — callbacks sur trois niveaux
+- Pourquoi j'ai sollicité l'IA : je ne voyais pas comment faire remonter un compteur de `EventTile` jusqu'à `CartBadge` sans tout passer en paramètres
+- Ce que j'ai demandé : un schéma simple Parent → Section → Tile avec un callback `VoidCallback`
+- Ce que j'ai obtenu : exemple avec `StatefulWidget` racine et props `count` / `onIncrement`
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : j'ai renommé les widgets pour coller au projet (`EventListScreen`, etc.)
+- Correction apportée et vérification faite : compteur affiché dans l'AppBar et perte constatée après navigation
+
+## Entrée 2
+- Date et heure : 09/03/2026, 14h45
+- Partie du TP concernée : Partie A.3 — premier `ChangeNotifier`
+- Pourquoi j'ai sollicité l'IA : confusion sur l'emplacement exact du `ChangeNotifierProvider` par rapport au `MaterialApp`
+- Ce que j'ai demandé : où placer le provider pour que le panier survive à la navigation
+- Ce que j'ai obtenu : `MultiProvider` au-dessus de `MaterialApp`, consommation via `context.read` dans le bouton
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : compteur conservé après `push`/`pop` sur l'écran factice
+
+## Entrée 3
+- Date et heure : 09/03/2026, 15h05
+- Partie du TP concernée : Partie B.2 — contraintes métier du panier
+- Pourquoi j'ai sollicité l'IA : hésitation sur la politique « même événement ajouté deux fois »
+- Ce que j'ai demandé : fusionner l'inscription ou refuser — quelle option est la plus cohérente
+- Ce que j'ai obtenu : suggestion de mettre à jour quantité/session et retourner un enum `updated`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : trois cas testés (double ajout, événement complet, plafond 10 places)
+
+## Entrée 4
+- Date et heure : 09/03/2026, 15h40
+- Partie du TP concernée : Partie B — découplage `lib/state/`
+- Pourquoi j'ai sollicité l'IA : erreur d'analyse car j'avais importé `material.dart` dans `registration_cart.dart`
+- Ce que j'ai demandé : quels imports Flutter sont autorisés dans un `ChangeNotifier` métier
+- Ce que j'ai obtenu : uniquement `foundation.dart` pour `ChangeNotifier`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : `flutter analyze` sans import interdit dans `lib/state/`
+
+## Entrée 5
+- Date et heure : 09/03/2026, 16h00
+- Partie du TP concernée : Partie B.5 — badge panier universel
+- Pourquoi j'ai sollicité l'IA : le badge ne se mettait pas à jour depuis l'écran détail
+- Ce que j'ai demandé : différence entre `Consumer` et `Selector` pour un simple entier dans l'AppBar
+- Ce que j'ai obtenu : `Selector<RegistrationCart, int>` sur `totalPlaces`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : ajout depuis le détail visible immédiatement sur la liste
+
+## Entrée 6
+- Date et heure : 09/03/2026, 16h25
+- Partie du TP concernée : Partie C.1 — recompositions
+- Pourquoi j'ai sollicité l'IA : trop de rebuilds quand j'utilisais `context.watch` sur toute la tuile
+- Ce que j'ai demandé : exemple de `Selector` pour ne reconstruire que si l'événement est dans le panier
+- Ce que j'ai obtenu : `Selector<RegistrationCart, bool>` avec `cart.isEventInCart(id)`
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : j'ai ajouté un compteur statique `BuildCounter` pour mesurer les `build`
+- Correction apportée et vérification faite : tableau comparatif consigné dans le README
+
+## Entrée 7
+- Date et heure : 09/03/2026, 16h35
+- Partie du TP concernée : Partie C.3 — `ChangeNotifierProxyProvider`
+- Pourquoi j'ai sollicité l'IA : je ne comprenais pas le rôle du paramètre `update` dans le proxy
+- Ce que j'ai demandé : à quoi sert `previousCart!..updateRepository(repository)`
+- Ce que j'ai obtenu : réutiliser l'instance existante tout en rafraîchissant la dépendance injectée
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : `RegistrationCart` ne contient plus de `EventRepository()` en dur
+
+## Entrée 8
+- Date et heure : 09/03/2026, 16h40
+- Partie du TP concernée : Partie C.4 — machine à états scellée
+- Pourquoi j'ai sollicité l'IA : hésitation entre enum + booléens et `sealed class`
+- Ce que j'ai demandé : exemple minimal de `sealed class EventListState` en Dart 3
+- Ce que j'ai obtenu : trois sous-classes `Loading`, `Loaded`, `Error` et un `switch` exhaustif
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : chargement simulé avec `Future.delayed`, bouton d'erreur de test
+
+## Entrée 9
+- Date et heure : 09/03/2026, 16h40
+- Partie du TP concernée : Partie D — `ValueNotifier` local
+- Pourquoi j'ai sollicité l'IA : savoir si un panneau d'aide pliable doit aller dans un Provider
+- Ce que j'ai demandé : critère simple pour trancher local vs global
+- Ce que j'ai obtenu : `ValueNotifier` + `ValueListenableBuilder` si un seul widget consomme l'état
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : panneau « Aide rapide » sans aucun accès Provider
+
+## Entrée 10
+- Date et heure : 09/03/2026, 16h40
+- Partie du TP concernée : Partie B.3 — `DisplayPreferences`
+- Pourquoi j'ai sollicité l'IA : tri par places restantes — calcul côté écran ou notifier ?
+- Ce que j'ai demandé : où appliquer le tri sans mettre de logique Flutter dans `display_preferences.dart`
+- Ce que j'ai obtenu : le notifier stocke le critère, l'écran liste applique le tri sur la liste chargée
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : changement de tri visible sans redémarrer l'app
+
+## Bilan
+- Sur quoi l'IA m'a réellement fait gagner du temps : placement des providers, enum de retour panier, `Selector` vs `watch`, syntaxe `sealed class`
+- Sur quoi elle m'a coûté du temps : première explication du proxy provider un peu abstraite, à recouper avec la doc officielle
+- Ce que je saurais refaire sans elle à l'issue de ce TP : structurer un panier avec `ChangeNotifier`, exposer des préférences séparées, choisir `read`/`select` selon le rebuild voulu, injecter un dépôt avec `ChangeNotifierProxyProvider`

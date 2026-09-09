@@ -1,49 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/event.dart';
-import '../models/participation_package.dart';
-import '../routes/app_routes.dart';
-import '../routes/route_generator.dart';
+import '../screens/main_shell.dart';
+import '../state/registration_cart.dart';
 import '../theme/spacing.dart';
 import '../utils/date_label.dart';
 import '../widgets/capacity_gauge.dart';
+import '../widgets/cart_badge.dart';
 import '../widgets/category_pill.dart';
 import '../widgets/icon_label.dart';
 
-class EventDetailScreen extends StatelessWidget {
+class EventDetailScreen extends StatefulWidget {
   const EventDetailScreen({super.key, required this.event});
 
   final Event event;
 
-  Future<void> _openPackageSelection(BuildContext context) async {
-    final ParticipationPackage? chosen =
-        await Navigator.pushNamed<ParticipationPackage?>(
-      context,
-      AppRoutes.packageSelection,
-      arguments: event.id,
-    );
+  @override
+  State<EventDetailScreen> createState() => _EventDetailScreenState();
+}
 
-    if (!context.mounted || chosen == null) {
-      return;
-    }
+class _EventDetailScreenState extends State<EventDetailScreen> {
+  late String _selectedSessionId;
 
-    await Navigator.pushReplacementNamed(
-      context,
-      AppRoutes.confirmation,
-      arguments: ConfirmationRouteArgs(event: event, package: chosen),
-    );
+  @override
+  void initState() {
+    super.initState();
+    _selectedSessionId = widget.event.sessions.first.id;
+  }
+
+  void _addToCart() {
+    final result = context.read<RegistrationCart>().addRegistration(
+          eventId: widget.event.id,
+          sessionId: _selectedSessionId,
+          quantity: 1,
+        );
+    final message = switch (result) {
+      CartOperationResult.success => 'Ajouté au panier.',
+      CartOperationResult.updated => 'Inscription mise à jour.',
+      CartOperationResult.eventFull => 'Événement complet.',
+      CartOperationResult.quotaExceeded =>
+        'Plafond de ${RegistrationCart.maxUserPlaces} places atteint.',
+      CartOperationResult.notFound => 'Événement introuvable.',
+      CartOperationResult.invalidQuantity => 'Quantité invalide.',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context) {
+    final event = widget.event;
     final scheme = Theme.of(context).colorScheme;
-    final locationLabel = event.isOnline
-        ? event.venue
-        : '${event.venue}, ${event.city}';
+    final locationLabel =
+        event.isOnline ? event.venue : '${event.venue}, ${event.city}';
+    final cartQuantity = context.select<RegistrationCart, int>(
+      (cart) => cart.reservedPlacesForEvent(event.id),
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Détail de l\'événement'),
+        title: const Text('Détail'),
+        actions: [
+          CartBadge(
+            onTap: () => MainShell.goToCartTabFrom(context),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(Spacing.lg),
@@ -55,7 +76,6 @@ class EventDetailScreen extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                height: 1.25,
               ),
             ),
             const SizedBox(height: Spacing.md),
@@ -75,41 +95,38 @@ class EventDetailScreen extends StatelessWidget {
               iconColor: scheme.onSurfaceVariant,
             ),
             const SizedBox(height: Spacing.lg),
-            Text(
-              'Places',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: scheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: Spacing.sm),
             CapacityGauge(
               registered: event.registered,
               capacity: event.capacity,
             ),
             const SizedBox(height: Spacing.sm),
             Text(
-              '${event.registered} / ${event.capacity} inscrits',
-              style: TextStyle(
-                fontSize: 13,
-                color: scheme.onSurfaceVariant,
-              ),
+              '${event.registered} / ${event.capacity} inscrits — '
+              '$cartQuantity place(s) dans votre panier',
+              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
             ),
             const SizedBox(height: Spacing.xl),
+            Wrap(
+              spacing: Spacing.sm,
+              runSpacing: Spacing.sm,
+              children: [
+                for (final session in event.sessions)
+                  ChoiceChip(
+                    label: Text('${session.label} (${session.schedule})'),
+                    selected: _selectedSessionId == session.id,
+                    onSelected: (_) {
+                      setState(() => _selectedSessionId = session.id);
+                    },
+                  ),
+              ],
+            ),
+            const SizedBox(height: Spacing.lg),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => _openPackageSelection(context),
-                icon: const Icon(Icons.local_activity_outlined),
-                label: const Text('Choisir une formule'),
-              ),
-            ),
-            const SizedBox(height: Spacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Retour'),
+                onPressed: event.isSoldOut ? null : _addToCart,
+                icon: const Icon(Icons.add_shopping_cart_outlined),
+                label: const Text('Ajouter au panier'),
               ),
             ),
           ],
