@@ -157,7 +157,7 @@ Outil(s) utilisé(s) : ChatGPT (GPT-4o) / Cursor (autocomplétion)
 Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dessous
 
 ## Entrée 1
-- Date et heure : 05/10/2026, 08h32
+- Date et heure : 05/10/2026, 08h35
 - Partie du TP concernée : Partie A.2 — couche `UsersApi`
 - Pourquoi j'ai sollicité l'IA : je ne savais pas où placer la vérification du `statusCode` par rapport au `jsonDecode`
 - Ce que j'ai demandé : ordre des opérations pour un `http.get` avec DummyJSON
@@ -166,7 +166,7 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Correction apportée et vérification faite : erreur 500 affichée sans crash, test via le menu de l'annuaire
 
 ## Entrée 2
-- Date et heure : 05/10/2026, 08h38
+- Date et heure : 05/10/2026, 08h55
 - Partie du TP concernée : Partie A.5 — `Participant.fromJson`
 - Pourquoi j'ai sollicité l'IA : vérifier ma conversion quand `id` arrive en chaîne
 - Ce que j'ai demandé : pattern Dart pour caster int ou String vers int avec repli
@@ -176,7 +176,7 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Correction apportée et vérification faite : JSON local modifié à la main dans un test rapide, pas d'exception
 
 ## Entrée 3
-- Date et heure : 05/10/2026, 08h44
+- Date et heure : 05/10/2026, 09h15
 - Partie du TP concernée : Partie B.1 — pagination
 - Pourquoi j'ai sollicité l'IA : blocage sur le moment exact pour charger la page suivante
 - Ce que j'ai demandé : exemple de `ScrollController` avec seuil avant la fin
@@ -186,7 +186,7 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Correction apportée et vérification faite : défilement jusqu'à la fin, plus de requête après 208 entrées (logs console)
 
 ## Entrée 4
-- Date et heure : 05/10/2026, 08h50
+- Date et heure : 05/10/2026, 09h40
 - Partie du TP concernée : Partie C.4 — nouvelles tentatives
 - Ce que j'ai demandé : boucle de retry avec délai croissant sur erreur 5xx
 - Ce que j'ai obtenu : boucle `for` avec `Future.delayed` et liste de durées
@@ -195,7 +195,7 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Correction apportée et vérification faite : mode erreur 500 → trois lignes horodatées dans la console espacées d'environ 1 s, 2 s, 4 s
 
 ## Entrée 5
-- Date et heure : 05/10/2026, 08h55
+- Date et heure : 05/10/2026, 10h00
 - Partie du TP concernée : Partie C.6 — `FutureBuilder` recréé
 - Pourquoi j'ai sollicité l'IA : je voyais plusieurs requêtes identiques au scroll du clavier
 - Ce que j'ai demandé : pourquoi le `future:` se relance à chaque `build`
@@ -204,7 +204,7 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Correction apportée et vérification faite : une seule requête au démarrage normal ; explication reprise dans le README
 
 ## Entrée 6
-- Date et heure : 05/10/2026, 08h58
+- Date et heure : 05/10/2026, 10h15
 - Partie du TP concernée : Partie B.4 — état vide vs erreur
 - Pourquoi j'ai sollicité l'IA : tentation d'afficher le même widget pour recherche vide et panne réseau
 - Ce que j'ai demandé : idée de libellé pour « aucun résultat »
