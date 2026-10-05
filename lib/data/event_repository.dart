@@ -1,4 +1,5 @@
 import '../models/event.dart';
+import '../models/event_draft.dart';
 import '../models/session.dart';
 
 class EventRepository {
@@ -149,6 +150,57 @@ class EventRepository {
       }
     }
     return null;
+  }
+
+  void addFromDraft(EventDraft draft) {
+    final id = 'evt-new-${_events.length + 1}';
+    final date = DateTime(
+      draft.startDate.year,
+      draft.startDate.month,
+      draft.startDate.day,
+      draft.startTime.hour,
+      draft.startTime.minute,
+    );
+    final d = date.day.toString().padLeft(2, '0');
+    final m = date.month.toString().padLeft(2, '0');
+    final dateLabel =
+        '$d/$m/${date.year} — ${draft.startTime.hour.toString().padLeft(2, '0')}h${draft.startTime.minute.toString().padLeft(2, '0')}';
+
+    _events.add(
+      Event(
+        id: id,
+        title: draft.title,
+        city: draft.isOnline ? '' : _cityFromAddress(draft.address),
+        venue: draft.isOnline
+            ? 'Diffusion en direct'
+            : (draft.address ?? 'Lieu à confirmer'),
+        date: date,
+        dateLabel: dateLabel,
+        category: draft.category,
+        capacity: draft.capacity,
+        registered: 0,
+        imageUrl: 'https://picsum.photos/seed/${id.hashCode}/400/400',
+        isOnline: draft.isOnline,
+        sessions: const [
+          Session(
+            id: 's-default',
+            label: 'Session principale',
+            schedule: 'Voir fiche',
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _cityFromAddress(String? address) {
+    if (address == null || address.trim().isEmpty) {
+      return 'À préciser';
+    }
+    final parts = address.split(',');
+    if (parts.length > 1) {
+      return parts.last.trim();
+    }
+    return address.trim();
   }
 
   List<Event> get allEvents => List.unmodifiable(_events);

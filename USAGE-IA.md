@@ -216,3 +216,68 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Sur quoi l'IA m'a réellement fait gagner du temps : squelette `Uri.https`, idée du seuil de scroll, rappel sur le `Future` mémorisé
 - Sur quoi elle m'a coûté du temps : proposition de retry trop générique ; j'ai dû relire la consigne sur les 404
 - Ce que je saurais refaire sans elle à l'issue de ce TP : enchaîner get → statut → decode, paginer avec `skip`/`total`, afficher trois états sans stack trace, fermer un `http.Client` dans `dispose`
+
+---
+
+# USAGE-IA — TP 6 — CAUNEGRE Joran
+
+Outil(s) utilisé(s) : ChatGPT (GPT-4o) / Cursor (autocomplétion)
+Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dessous
+
+## Entrée 1
+- Date et heure : 05/10/2026, 12h22
+- Partie du TP concernée : Partie A — navigation clavier
+- Pourquoi j'ai sollicité l'IA : je mélangeais `onSubmitted` du `TextField` et `onFieldSubmitted` du `TextFormField`
+- Ce que j'ai demandé : enchaîner quatre champs avec `FocusNode` sans bouton « suivant »
+- Ce que j'ai obtenu : `TextInputAction.next` + `FocusScope.of(context).requestFocus`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : parcours complet au clavier jusqu'au `done` qui soumet
+
+## Entrée 2
+- Date et heure : 05/10/2026, 12h28
+- Partie du TP concernée : Partie C.1 — `compose` de validateurs
+- Pourquoi j'ai sollicité l'IA : éviter de dupliquer le test « non vide » sur chaque champ
+- Ce que j'ai demandé : typedef `Validator` et fonction `compose`
+- Ce que j'ai obtenu : boucle qui retourne la première erreur non nulle
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : aucun import Flutter dans `lib/validation/`
+
+## Entrée 3
+- Date et heure : 05/10/2026, 12h35
+- Partie du TP concernée : Partie B — adresse vs « en ligne »
+- Ce que j'ai demandé : où valider une règle qui dépend de deux champs
+- Ce que j'ai obtenu : validation globale au clic, pas dans un seul `validator`
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : j'ai extrait la logique dans `cross_field_rules.dart` sans widget
+- Correction apportée et vérification faite : en ligne + adresse remplie refusé au récapitulatif
+
+## Entrée 4
+- Date et heure : 05/10/2026, 12h42
+- Partie du TP concernée : Partie C.4 — `DateRangeFormField`
+- Pourquoi j'ai sollicité l'IA : synchroniser deux `showDatePicker` avec `FormFieldState.didChange`
+- Ce que j'ai obtenu : squelette `FormField` avec `builder` et `onSaved`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : `reset()` du formulaire parent remet la période
+
+## Entrée 5
+- Date et heure : 05/10/2026, 12h52
+- Partie du TP concernée : Partie C.5 — `TwoDecimalsFormatter`
+- Ce que j'ai demandé : bloquer une troisième décimale sans regex sur tout le champ
+- Ce que j'ai obtenu : retourner `oldValue` si trop de chiffres après le séparateur
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : saisie « 12,999 » reste « 12,99 »
+
+## Entrée 6
+- Date et heure : 05/10/2026, 13h00
+- Partie du TP concernée : Partie C.6 — sortie non soumise
+- Pourquoi j'ai sollicité l'IA : savoir quelle API Flutter utiliser pour intercepter le retour
+- Ce que j'ai demandé : pattern avec `PopScope` sur Flutter 3.47
+- Ce que j'ai obtenu : `canPop: false` + `onPopInvokedWithResult` + dialogue
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : j'ai branché le flag `_isDirty` sur les `TextEditingController` seulement
+- Correction apportée et vérification faite : retour arrière après saisie titre → dialogue ; après confirmation création, pas de dialogue
+
+## Bilan
+- Sur quoi l'IA m'a réellement fait gagner du temps : enchaînement focus, squelette `FormField`, rappel `PopScope`
+- Sur quoi elle m'a coûté du temps : première idée de règles croisées dans les `validator` individuels, à refactoriser
+- Ce que je saurais refaire sans elle à l'issue de ce TP : structurer un `Form`, composer des validateurs purs, gérer `dispose` des contrôleurs, produire un modèle typé après `save()`

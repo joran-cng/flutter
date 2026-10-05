@@ -5,8 +5,12 @@ import '../models/event.dart';
 import '../screens/cart_summary_screen.dart';
 import '../screens/directory_screen.dart';
 import '../screens/event_detail_screen.dart';
+import '../screens/event_creation_screen.dart';
 import '../screens/event_list_screen.dart';
+import '../screens/event_summary_screen.dart';
+import '../models/event_draft.dart';
 import '../screens/participant_detail_screen.dart';
+import '../screens/registration_screen.dart';
 import '../screens/not_found_screen.dart';
 import '../screens/route_error_screen.dart';
 import 'app_routes.dart';
@@ -83,6 +87,18 @@ class RouteGenerator {
         );
       case AppRoutes.participantDetail:
         return _buildParticipantDetailRoute(settings);
+      case AppRoutes.registration:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const RegistrationScreen(),
+        );
+      case AppRoutes.eventCreation:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const EventCreationScreen(),
+        );
+      case AppRoutes.eventSummary:
+        return _buildEventSummaryRoute(settings);
       default:
         return _buildNotFoundRoute(settings);
     }
@@ -117,6 +133,18 @@ class RouteGenerator {
         );
       case AppRoutes.participantDetail:
         return _buildParticipantDetailRoute(settings);
+      case AppRoutes.registration:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const RegistrationScreen(),
+        );
+      case AppRoutes.eventCreation:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const EventCreationScreen(),
+        );
+      case AppRoutes.eventSummary:
+        return _buildEventSummaryRoute(settings);
       default:
         return _buildNotFoundRoute(settings);
     }
@@ -179,6 +207,23 @@ class RouteGenerator {
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (_) => ParticipantDetailScreen(participantId: arguments),
+    );
+  }
+
+  static Route<dynamic> _buildEventSummaryRoute(RouteSettings settings) {
+    final arguments = settings.arguments;
+    if (arguments is! EventDraft) {
+      return MaterialPageRoute<void>(
+        settings: settings,
+        builder: (_) => const RouteErrorScreen(
+          message: 'Récapitulatif : données invalides.',
+        ),
+      );
+    }
+
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => EventSummaryScreen(draft: arguments),
     );
   }
 

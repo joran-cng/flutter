@@ -1,6 +1,6 @@
 # flutter_application_1
 
-Application Flutter — Event Planner (TP 5 — API REST).
+Application Flutter — Event Planner (TP 6 — Formulaires).
 
 > J'étais absent le jour du TP02 (absence justifiée). Comme convenu avec le professeur, je reprends directement au TP03 à partir de la correction du TP02, puis au TP04.
 
@@ -138,6 +138,79 @@ Correction : `late Future<UsersPageResult> _initialFuture;` initialisée une seu
 Bouton **Inscrire** : deux champs simples, envoi JSON, message de succès simulé. **Pas de nouvelle tentative automatique** sur le POST.
 
 **Idempotence** — un `GET` peut être rejoué sans effet de bord. Rejouer un `POST` d'inscription après un timeout ambigu peut créer un doublon côté serveur réel ; d'où l'absence de retry sur `addParticipant`, contrairement aux lectures.
+
+## TP 6 — Formulaires et validation
+
+Accès : accueil → icône **Inscription** (`RegistrationScreen`) ou **Créer un événement** (`EventCreationScreen` → récapitulatif → confirmation). État des formulaires **local** au `State` de l'écran (pas de `Provider` pour la saisie). Soumission création d'événement : **mémoire** via `EventRepository.addFromDraft`, sans HTTP.
+
+### Partie A — Inscription
+
+`Form` + `GlobalKey<FormState>`, quatre `TextFormField`, validateurs dans `lib/validation/validators.dart`, navigation clavier (`FocusNode`, `TextInputAction.next` / `done`), `reset()` après `SnackBar`.
+
+**Regex courriel** (détail ligne par ligne, pattern dans `validators.dart`) :
+
+| Fragment | Rôle |
+| --- | --- |
+| `^` | début de chaîne |
+| `[a-zA-Z0-9._%+-]+` | partie locale avant `@` |
+| `@` | séparateur obligatoire |
+| `[a-zA-Z0-9.-]+` | nom de domaine |
+| `\.` | point avant l'extension |
+| `[a-zA-Z]{2,}` | extension (au moins 2 lettres) |
+| `$` | fin de chaîne |
+
+### Partie B — Création d'événement
+
+Douze contrôles intégrés au `Form`, contraintes croisées dans `lib/validation/cross_field_rules.dart` (`inscritsExistants = 12`). Convention tarif gratuit : **0 ou champ vide** acceptés si « événement gratuit » ; sinon tarif > 0 autorisé. Récapitulatif lecture seule (`EventSummaryScreen`) → `EventDraft` immuable → `SnackBar` avec titre + date.
+
+### Partie C — Architecture
+
+**Couche pure** — `lib/validation/` sans import Flutter ; les widgets n'utilisent que `compose([...])`.
+
+**`dispose()`** — libération explicite :
+
+| Écran | Contrôleurs | FocusNode |
+| --- | --- | --- |
+| `RegistrationScreen` | nom, ville, places, courriel | 4 nœuds |
+| `EventCreationScreen` | titre, description, capacité, adresse, tarif | — |
+
+Protocole fuite (observation) : commenter temporairement les `dispose()` des contrôleurs, rouvrir l'écran inscription dix fois via navigation : sans libération, la saisie peut devenir erratique et la mémoire monte au fil des allers-retours ; avec `dispose()` restauré, comportement stable.
+
+**Autovalidation** :
+
+| Champ | Mode | Justification |
+| --- | --- | --- |
+| Nom / ville / places (inscription) | `disabled` puis `onUserInteraction` après 1re soumission | pas d'erreur agressive avant tentative |
+| Courriel (inscription) | idem | évite « email invalide » pendant la frappe |
+| Titre / description (création) | `onUserInteraction` | retour rapide sur longueur |
+| Capacité / adresse / tarif | après 1re soumission globale | champs sensibles aux règles croisées |
+| Période (`DateRangeFormField`) | après 1re soumission | dates choisies par pickers |
+
+**`DateRangeFormField`** — `FormField` personnalisé (début + fin), répond à `validate` / `save` / `reset`.
+
+**`TwoDecimalsFormatter`** — bloque une 3e décimale après `,` ou `.`.
+
+**Sortie non sauvegardée** — `PopScope` (`canPop: !_isDirty`) + dialogue ; API vérifiée avec Flutter 3.47.x (`onPopInvokedWithResult`).
+
+### Tableau des règles (création + croisées)
+
+| Champ | Règle | Message affiché | Cas limites testés |
+| --- | --- | --- | --- |
+| Nom complet (A) | obligatoire, 2–80 car. | messages `validators.dart` | vide, 1 caractère |
+| Courriel (A) | regex ci-dessus | « Saisissez une adresse au format nom@domaine.ext » | vide, sans `@`, sans point domaine |
+| Titre | obligatoire | « Indiquez un titre… » | vide |
+| Description | 20–500 car. | messages longueur | 19 car., compteur 500 |
+| Catégorie | obligatoire | « Choisissez une catégorie. » | aucune sélection |
+| Capacité | entier > 0 | « …strictement positive » | 0, texte |
+| Capacité (croisée) | ≥ 12 inscrits | « …au moins 12… » | capacité 10 |
+| Adresse (croisée) | obligatoire si présentiel | « Indiquez l'adresse… » | en ligne vide / présentiel vide |
+| Adresse (croisée) | vide si en ligne | « Effacez l'adresse… » | en ligne + adresse remplie |
+| Période (croisée) | fin > début | « …postérieure… » | fin = début |
+| Tarif (croisée) | 0 si gratuit | « Mettez le tarif à 0… » | gratuit + 15 € |
+| Tarif (saisie) | format décimal | « …tarif valide… » | lettres |
+| Conditions | obligatoire | SnackBar acceptation | non coché |
+
+Partie D (Stepper multi-étapes) : non réalisée (bonus).
 
 ## Lancer l'application
 

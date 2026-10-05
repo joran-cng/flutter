@@ -77,6 +77,20 @@ class _EventListScreenState extends State<EventListScreen> {
               Navigator.pushNamed(context, AppRoutes.directory);
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.edit_note_outlined),
+            tooltip: 'Inscription',
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.registration);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            tooltip: 'Créer un événement',
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.eventCreation);
+            },
+          ),
         ],
       ),
       body: switch (listState) {
