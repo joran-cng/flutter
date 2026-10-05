@@ -10,7 +10,6 @@ import '../theme/spacing.dart';
 import '../utils/build_counter.dart';
 import '../widgets/cart_badge.dart';
 import '../widgets/event_section.dart';
-import 'placeholder_nav_screen.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -72,14 +71,10 @@ class _EventListScreenState extends State<EventListScreen> {
             onTap: () => MainShell.goToCartTabFrom(context),
           ),
           IconButton(
-            icon: const Icon(Icons.travel_explore_outlined),
+            icon: const Icon(Icons.contacts_outlined),
+            tooltip: 'Annuaire',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => const PlaceholderNavScreen(),
-                ),
-              );
+              Navigator.pushNamed(context, AppRoutes.directory);
             },
           ),
         ],

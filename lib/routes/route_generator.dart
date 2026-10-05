@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../data/event_repository.dart';
 import '../models/event.dart';
 import '../screens/cart_summary_screen.dart';
+import '../screens/directory_screen.dart';
 import '../screens/event_detail_screen.dart';
 import '../screens/event_list_screen.dart';
+import '../screens/participant_detail_screen.dart';
 import '../screens/not_found_screen.dart';
 import '../screens/route_error_screen.dart';
 import 'app_routes.dart';
@@ -74,6 +76,13 @@ class RouteGenerator {
           settings: settings,
           builder: (_) => const CartSummaryScreen(),
         );
+      case AppRoutes.directory:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const DirectoryScreen(),
+        );
+      case AppRoutes.participantDetail:
+        return _buildParticipantDetailRoute(settings);
       default:
         return _buildNotFoundRoute(settings);
     }
@@ -101,6 +110,13 @@ class RouteGenerator {
           settings: settings,
           builder: (_) => const CartSummaryScreen(),
         );
+      case AppRoutes.directory:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const DirectoryScreen(),
+        );
+      case AppRoutes.participantDetail:
+        return _buildParticipantDetailRoute(settings);
       default:
         return _buildNotFoundRoute(settings);
     }
@@ -146,6 +162,23 @@ class RouteGenerator {
     return MaterialPageRoute<void>(
       settings: settings,
       builder: (_) => RouteErrorScreen(message: resolution.errorMessage!),
+    );
+  }
+
+  static Route<dynamic> _buildParticipantDetailRoute(RouteSettings settings) {
+    final arguments = settings.arguments;
+    if (arguments is! int) {
+      return MaterialPageRoute<void>(
+        settings: settings,
+        builder: (_) => const RouteErrorScreen(
+          message: 'Identifiant participant invalide.',
+        ),
+      );
+    }
+
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => ParticipantDetailScreen(participantId: arguments),
     );
   }
 

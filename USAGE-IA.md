@@ -148,3 +148,71 @@ Outil(s) utilisé(s) : Cursor (composer)
 - Sur quoi l'IA m'a réellement fait gagner du temps : placement des providers, enum de retour panier, `Selector` vs `watch`, syntaxe `sealed class`
 - Sur quoi elle m'a coûté du temps : première explication du proxy provider un peu abstraite, à recouper avec la doc officielle
 - Ce que je saurais refaire sans elle à l'issue de ce TP : structurer un panier avec `ChangeNotifier`, exposer des préférences séparées, choisir `read`/`select` selon le rebuild voulu, injecter un dépôt avec `ChangeNotifierProxyProvider`
+
+---
+
+# USAGE-IA — TP 5 — CAUNEGRE Joran
+
+Outil(s) utilisé(s) : ChatGPT (GPT-4o) / Cursor (autocomplétion)
+Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dessous
+
+## Entrée 1
+- Date et heure : 05/10/2026, 08h32
+- Partie du TP concernée : Partie A.2 — couche `UsersApi`
+- Pourquoi j'ai sollicité l'IA : je ne savais pas où placer la vérification du `statusCode` par rapport au `jsonDecode`
+- Ce que j'ai demandé : ordre des opérations pour un `http.get` avec DummyJSON
+- Ce que j'ai obtenu : exemple avec branche `!= 200` avant tout décodage
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : erreur 500 affichée sans crash, test via le menu de l'annuaire
+
+## Entrée 2
+- Date et heure : 05/10/2026, 08h38
+- Partie du TP concernée : Partie A.5 — `Participant.fromJson`
+- Pourquoi j'ai sollicité l'IA : vérifier ma conversion quand `id` arrive en chaîne
+- Ce que j'ai demandé : pattern Dart pour caster int ou String vers int avec repli
+- Ce que j'ai obtenu : helper `_asInt` avec `int.tryParse`
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : j'ai aussi géré `company` absent séparément, pas seulement `name`
+- Correction apportée et vérification faite : JSON local modifié à la main dans un test rapide, pas d'exception
+
+## Entrée 3
+- Date et heure : 05/10/2026, 08h44
+- Partie du TP concernée : Partie B.1 — pagination
+- Pourquoi j'ai sollicité l'IA : blocage sur le moment exact pour charger la page suivante
+- Ce que j'ai demandé : exemple de `ScrollController` avec seuil avant la fin
+- Ce que j'ai obtenu : comparaison `pixels >= maxScrollExtent - 200`
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : j'ai ajouté un garde-fou `_participants.length >= _total` pour ne plus appeler l'API
+- Correction apportée et vérification faite : défilement jusqu'à la fin, plus de requête après 208 entrées (logs console)
+
+## Entrée 4
+- Date et heure : 05/10/2026, 08h50
+- Partie du TP concernée : Partie C.4 — nouvelles tentatives
+- Ce que j'ai demandé : boucle de retry avec délai croissant sur erreur 5xx
+- Ce que j'ai obtenu : boucle `for` avec `Future.delayed` et liste de durées
+- Décision : refusée en partie
+- Si refusée ou corrigée, pourquoi : la première version relançait aussi les 404 ; j'ai limité aux `NetworkException` et 5xx seulement
+- Correction apportée et vérification faite : mode erreur 500 → trois lignes horodatées dans la console espacées d'environ 1 s, 2 s, 4 s
+
+## Entrée 5
+- Date et heure : 05/10/2026, 08h55
+- Partie du TP concernée : Partie C.6 — `FutureBuilder` recréé
+- Pourquoi j'ai sollicité l'IA : je voyais plusieurs requêtes identiques au scroll du clavier
+- Ce que j'ai demandé : pourquoi le `future:` se relance à chaque `build`
+- Ce que j'ai obtenu : explication + pattern `late Future` dans `initState`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : une seule requête au démarrage normal ; explication reprise dans le README
+
+## Entrée 6
+- Date et heure : 05/10/2026, 08h58
+- Partie du TP concernée : Partie B.4 — état vide vs erreur
+- Pourquoi j'ai sollicité l'IA : tentation d'afficher le même widget pour recherche vide et panne réseau
+- Ce que j'ai demandé : idée de libellé pour « aucun résultat »
+- Ce que j'ai obtenu : phrase avec le mot-clé entre guillemets
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : recherche « zzzzzz » → message gris neutre ; mode 500 → icône rouge + bouton Réessayer
+
+## Bilan
+- Sur quoi l'IA m'a réellement fait gagner du temps : squelette `Uri.https`, idée du seuil de scroll, rappel sur le `Future` mémorisé
+- Sur quoi elle m'a coûté du temps : proposition de retry trop générique ; j'ai dû relire la consigne sur les 404
+- Ce que je saurais refaire sans elle à l'issue de ce TP : enchaîner get → statut → decode, paginer avec `skip`/`total`, afficher trois états sans stack trace, fermer un `http.Client` dans `dispose`

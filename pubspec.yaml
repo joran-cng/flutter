@@ -1,5 +1,5 @@
 name: flutter_application_1
-description: "Event Planner — TP 4"
+description: "Event Planner — TP 5"
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   provider: ^6.1.5
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:

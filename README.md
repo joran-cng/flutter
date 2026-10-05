@@ -1,6 +1,6 @@
 # flutter_application_1
 
-Application Flutter — Event Planner (TP 4 — Provider).
+Application Flutter — Event Planner (TP 5 — API REST).
 
 > J'étais absent le jour du TP02 (absence justifiée). Comme convenu avec le professeur, je reprends directement au TP03 à partir de la correction du TP02, puis au TP04.
 
@@ -93,6 +93,51 @@ Panell « Aide rapide » sur l'écran liste : état ouvert/fermé via `ValueNoti
 **Exemple global** — `RegistrationCart` : badge sur tous les écrans, modifications depuis liste et détail, persistance tant que l'app tourne.
 
 **Cas limite** — densité d'affichage (compact/confortable) : pourrait rester locale à l'écran liste, mais j'ai choisi `DisplayPreferences` global car le TP demande un second notifier indépendant et le réglage peut légitimement s'appliquer au détail ; le critère « nombre de consommateurs » aurait pu justifier un état local strict.
+
+## TP 5 — Annuaire DummyJSON (API REST)
+
+Accès : icône **Annuaire** sur l'écran d'accueil. L'état réseau de l'annuaire est **local** à `DirectoryScreen` (`FutureBuilder` au premier chargement, puis liste paginée), sans `Provider`, conformément au périmètre séance 5.
+
+### Partie A — Premier appel
+
+- Couche `lib/api/users_api.dart` : seul point d'accès HTTP (`Uri.https`, contrôle du code avant `jsonDecode`).
+- `Participant.fromJson` défensif (champ absent, `null`, nombre en chaîne, `company` manquant → « Non renseigné »).
+- Menu ⋮ dans l'AppBar annuaire : **Test chargement (delay 1,5 s)** et **Test erreur serveur (500)** pour les captures.
+
+### Partie B — Annuaire complet
+
+- Pagination 20 par 20 jusqu'à `total`, déclenchée avant le bas de liste.
+- Chargement initial plein écran vs petit indicateur en pied de liste.
+- Recherche (`/users/search`) + puces mots-clés ; état vide « Aucun résultat pour… » distinct de l'écran d'erreur réseau.
+- Fiche détail (`/users/{id}`) avec téléphone/adresse.
+- `RefreshIndicator` remet `skip` à 0.
+
+### Partie C — Robustesse
+
+**Client HTTP réutilisé** — `http.Client` instancié dans `DirectoryScreen` / `UsersApi`, fermé dans `dispose()`. Les appels statiques `http.get` recréent une connexion à chaque fois ; un client partagé réutilise la connexion TCP sous-jacente quand le serveur le permet.
+
+**`compute`** — le parsing de la liste passe par un isolate (`parseUsersPageFromJson`). Sur 20 lignes le gain est négligeable ; l'intérêt apparaît quand le JSON devient volumineux (centaines d'entrées ou champs lourds), pour ne pas bloquer le fil UI pendant `jsonDecode`.
+
+**Piège du `Future` recréé** — version fautive (observée en debug) :
+
+```dart
+FutureBuilder(
+  future: _api.fetchUsers(), // recréé à chaque build → requêtes en rafale
+  ...
+)
+```
+
+Correction : `late Future<UsersPageResult> _initialFuture;` initialisée une seule fois dans `initState`, puis réassignée uniquement lors d'un rechargement explicite (refresh, menu test). Journal attendu : une requête au lancement ; plusieurs si le `future` est inline dans `build`.
+
+**Nouvelles tentatives** — 3 essais max, délais 1 s / 2 s / 4 s, uniquement sur `NetworkException` ou `ServerException` 5xx. Les traces `[UsersApi …] nouvelle tentative` sont visibles en console avec le mode erreur 500.
+
+**Timeout** — 10 s ; message utilisateur « Délai dépassé… ».
+
+### Partie D (bonus) — POST `/users/add`
+
+Bouton **Inscrire** : deux champs simples, envoi JSON, message de succès simulé. **Pas de nouvelle tentative automatique** sur le POST.
+
+**Idempotence** — un `GET` peut être rejoué sans effet de bord. Rejouer un `POST` d'inscription après un timeout ambigu peut créer un doublon côté serveur réel ; d'où l'absence de retry sur `addParticipant`, contrairement aux lectures.
 
 ## Lancer l'application
 

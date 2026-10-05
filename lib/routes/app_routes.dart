@@ -3,4 +3,6 @@ abstract final class AppRoutes {
   static const String eventDetail = '/event-detail';
   static const String cartSummary = '/cart-summary';
   static const String reservations = '/reservations';
+  static const String directory = '/directory';
+  static const String participantDetail = '/participant-detail';
 }
