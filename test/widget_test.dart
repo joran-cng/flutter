@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_1/main.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screens/login_screen.dart';
 import 'package:flutter_application_1/storage/preferences_store.dart';
 
 class FakePreferencesStore implements PreferencesStore {
@@ -66,16 +67,11 @@ class FakePreferencesStore implements PreferencesStore {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Event Planner affiche l\'écran d\'accueil', (tester) async {
-    final preferencesStore = FakePreferencesStore();
-    await preferencesStore.init();
-
+  testWidgets('écran de connexion organisateur', (tester) async {
     await tester.pumpWidget(
-      EventPlannerRoot(preferencesStore: preferencesStore),
+      const MaterialApp(home: LoginScreen()),
     );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 600));
 
-    expect(find.text('Event Planner'), findsOneWidget);
+    expect(find.text('Connexion organisateur'), findsOneWidget);
   });
 }

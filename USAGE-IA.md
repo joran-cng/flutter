@@ -343,3 +343,48 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Sur quoi l'IA m'a réellement fait gagner du temps : squelette observer lifecycle, rappel API prefs 2.5.x
 - Sur quoi elle m'a coûté du temps : première piste `getInstance()` à écarter
 - Ce que je saurais refaire sans elle à l'issue de ce TP : centraliser les clés, init avant `runApp`, brouillon JSON atomique, ne pas confondre prefs et données métier
+
+---
+
+# USAGE-IA — TP 8 — CAUNEGRE Joran
+
+Outil(s) utilisé(s) : Cursor (composer)
+Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dessous
+
+## Entrée 1
+- Date et heure : 07/10/2026, 09h15
+- Partie du TP concernée : Partie A — init Firebase
+- Ce que j'ai obtenu : squelette `Firebase.initializeApp` + écran d'erreur dédié
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : pas d'affichage de `e.toString()` à l'utilisateur sur l'écran d'erreur
+- Correction apportée et vérification faite : message générique sur `FirebaseInitErrorScreen`
+
+## Entrée 2
+- Date et heure : 07/10/2026, 10h05
+- Partie du TP concernée : Partie B — garde d'accès et déconnexion
+- Pourquoi j'ai sollicité l'IA : après `signOut`, le bouton retour revenait encore sur le profil organisateur
+- Ce que j'ai demandé : comment vider la pile sans `Provider` pour l'auth
+- Ce que j'ai obtenu : deux `Navigator` distincts (invité / connecté) avec `ValueKey` sur `authStateChanges`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : déconnexion puis retour système → écran de connexion uniquement
+
+## Entrée 3
+- Date et heure : 07/10/2026, 10h50
+- Partie du TP concernée : Partie C — requête `where` + `orderBy`
+- Ce que j'ai demandé : erreur Firestore au premier run avec lien d'index
+- Ce que j'ai obtenu : explication index composite et procédure console
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : index créé via le lien, liste chargée
+
+## Entrée 4
+- Date et heure : 07/10/2026, 11h30
+- Partie du TP concernée : Partie C — création d'événement (dialogue)
+- Pourquoi j'ai sollicité l'IA : crash `_dependents.isEmpty` après « Créer » alors que l'événement apparaissait au redémarrage
+- Ce que j'ai obtenu : piste `dispose()` des `TextEditingController` trop tôt pendant la fermeture du dialogue
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : `addPostFrameCallback` avant `dispose`, création sans écran rouge
+
+## Bilan
+- Sur quoi l'IA m'a réellement fait gagner du temps : structure Auth/Firestore et règles `ownerId`
+- Sur quoi elle m'a coûté du temps : première idée avec un seul `MaterialApp` et routes mélangées
+- Ce que je saurais refaire sans elle à l'issue de ce TP : `authStateChanges`, traduction des codes Auth, déploiement `firestore.rules`, lecture `isFromCache`

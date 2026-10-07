@@ -1,10 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'data/event_repository.dart';
-import 'routes/app_routes.dart';
-import 'routes/route_generator.dart';
-import 'screens/main_shell.dart';
+import 'firebase_options.dart';
+import 'screens/firebase_init_error_screen.dart';
+import 'services/auth_gate.dart';
 import 'state/display_preferences.dart';
 import 'state/event_list_state.dart';
 import 'state/registration_cart.dart';
@@ -15,16 +16,35 @@ import 'storage/preferences_sync.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  var firebaseReady = false;
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    firebaseReady = true;
+  } catch (_) {}
+
   final preferencesStore = SharedPreferencesStore();
   await preferencesStore.init();
   await DraftRepository.instance.init();
-  runApp(EventPlannerRoot(preferencesStore: preferencesStore));
+  runApp(
+    EventPlannerRoot(
+      preferencesStore: preferencesStore,
+      firebaseReady: firebaseReady,
+    ),
+  );
 }
 
 class EventPlannerRoot extends StatefulWidget {
-  const EventPlannerRoot({super.key, required this.preferencesStore});
+  const EventPlannerRoot({
+    super.key,
+    required this.preferencesStore,
+    required this.firebaseReady,
+  });
 
   final PreferencesStore preferencesStore;
+  final bool firebaseReady;
 
   @override
   State<EventPlannerRoot> createState() => _EventPlannerRootState();
@@ -58,7 +78,10 @@ class _EventPlannerRootState extends State<EventPlannerRoot> {
           ),
         ],
         child: _PreferencesBootstrap(
-          child: EventPlannerApp(preferencesStore: widget.preferencesStore),
+          child: EventPlannerApp(
+            preferencesStore: widget.preferencesStore,
+            firebaseReady: widget.firebaseReady,
+          ),
         ),
       ),
     );
@@ -93,9 +116,14 @@ class _PreferencesBootstrapState extends State<_PreferencesBootstrap> {
 }
 
 class EventPlannerApp extends StatelessWidget {
-  const EventPlannerApp({super.key, required this.preferencesStore});
+  const EventPlannerApp({
+    super.key,
+    required this.preferencesStore,
+    required this.firebaseReady,
+  });
 
   final PreferencesStore preferencesStore;
+  final bool firebaseReady;
 
   @override
   Widget build(BuildContext context) {
@@ -116,18 +144,9 @@ class EventPlannerApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      initialRoute: AppRoutes.home,
-      onGenerateRoute: (settings) {
-        final repository = context.read<EventRepository>();
-        if (settings.name == AppRoutes.home || settings.name == null) {
-          return MaterialPageRoute<void>(
-            settings: const RouteSettings(name: AppRoutes.home),
-            builder: (_) => const MainShell(),
-          );
-        }
-        return RouteGenerator.onGenerateRoute(settings, repository);
-      },
-      onUnknownRoute: RouteGenerator.onUnknownRoute,
+      home: firebaseReady
+          ? const AuthGate()
+          : const FirebaseInitErrorScreen(),
     );
   }
 }

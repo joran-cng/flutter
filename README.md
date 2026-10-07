@@ -1,6 +1,6 @@
 # flutter_application_1
 
-Application Flutter — Event Planner (TP 7 — Stockage local).
+Application Flutter — Event Planner (TP 8 — Firebase organisateur).
 
 > J'étais absent le jour du TP02 (absence justifiée). Comme convenu avec le professeur, je reprends directement au TP03 à partir de la correction du TP02, puis au TP04.
 
@@ -249,6 +249,38 @@ Brouillons en **Documents** : durables, hors cache volatile.
 **Préférences vs fichiers** : ne pas y mettre la liste d'événements, le panier, ni des secrets ; contrat « petite config UI » vs fichier JSON atomique pour brouillons métier.
 
 Partie D (export/import global) : non réalisée.
+
+## TP 8 — Firebase Auth et Firestore
+
+### Configuration versionnée
+
+`lib/firebase_options.dart` et `android/app/google-services.json` sont **versionnés** dans ce dépôt : ils identifient le projet Firebase (`flutter-app-711a6`) mais ne sont pas des secrets serveur. La protection des données repose sur **Authentication** et les **règles Firestore** (`firestore.rules`). Une vraie clé secrète (API backend, jeton tiers) ne devrait pas être commitée ; ces fichiers FlutterFire sont une exception documentée, conformément au sujet.
+
+Déploiement des règles : `firebase deploy --only firestore:rules` (après `firebase init` si besoin) ou collage dans la console Firestore.
+
+### Parcours Auth
+
+- Garde racine : `AuthGate` + `StreamBuilder` sur `authStateChanges()` (pas de `Provider` pour l’auth).
+- Écrans : connexion, inscription (`sendEmailVerification`), réinitialisation, profil (`updateDisplayName` + `userChanges()`), déconnexion (`signOut`) avec navigateurs séparés invité / connecté pour vider la pile.
+- Erreurs : `lib/utils/auth_error_translator.dart` (six codes + défaut).
+
+### Firestore `events`
+
+- Champs : `title`, `ownerId`, `createdAt` (horodatage serveur), `location` optionnel.
+- Liste temps réel : `where('ownerId')` + `orderBy('createdAt', descending: true)` + `snapshots()`.
+- Bandeau **cache** si `snapshot.metadata.isFromCache` (données locales avant confirmation serveur).
+- `permission-denied` : message utilisateur, pas de crash.
+
+### Index composite
+
+La requête ci-dessus exige un index composite `ownerId` + `createdAt`. Au premier lancement, Firestore renvoie une erreur avec un **lien de création d’index** dans la console : Firestore ne parcourt pas toute la collection côté serveur pour trier après un filtre d’égalité ; l’index pré-calculé est obligatoire pour des performances et un coût maîtrisé.
+
+### Hors ligne (observation)
+
+- **Lecture** : le cache local peut afficher la dernière liste connue ; l’icône « hors ligne » signale une source non confirmée serveur.
+- **Écriture** : `add` / `delete` sont mis en file d’attente et réapparaissent localement ; sans réseau, la synchronisation reste en attente jusqu’au retour de connexion (ou échec si les règles refusent).
+
+Partie D (émulateurs Firebase) : non réalisée.
 
 ## Lancer l'application
 

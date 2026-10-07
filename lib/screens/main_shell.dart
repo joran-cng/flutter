@@ -30,6 +30,17 @@ class MainShell extends StatefulWidget {
     return context.findAncestorStateOfType<MainShellState>()?.currentTabIndex;
   }
 
+  static void returnToOrganizer(BuildContext context) {
+    final shell = context.findAncestorStateOfType<MainShellState>();
+    if (shell == null) {
+      return;
+    }
+    final navigator = Navigator.of(shell.context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+  }
+
   @override
   State<MainShell> createState() => MainShellState();
 }
@@ -75,6 +86,12 @@ class MainShellState extends State<MainShell> {
 
     if (_currentIndex != 0) {
       setState(() => _currentIndex = 0);
+      return;
+    }
+
+    final parentNavigator = Navigator.of(context);
+    if (parentNavigator.canPop()) {
+      parentNavigator.pop();
     }
   }
 

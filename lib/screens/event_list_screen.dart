@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -67,6 +68,12 @@ class _EventListScreenState extends State<EventListScreen> {
         title: const Text('Event Planner'),
         automaticallyImplyLeading: false,
         actions: [
+          if (FirebaseAuth.instance.currentUser != null)
+            IconButton(
+              icon: const Icon(Icons.dashboard_outlined),
+              tooltip: 'Espace organisateur',
+              onPressed: () => MainShell.returnToOrganizer(context),
+            ),
           CartBadge(
             onTap: () => MainShell.goToCartTabFrom(context),
           ),
