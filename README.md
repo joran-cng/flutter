@@ -252,9 +252,18 @@ Partie D (export/import global) : non réalisée.
 
 ## TP 8 — Firebase Auth et Firestore
 
-### Configuration versionnée
+### Configuration Firebase (hors Git)
 
-`lib/firebase_options.dart` et `android/app/google-services.json` sont **versionnés** dans ce dépôt : ils identifient le projet Firebase (`flutter-app-711a6`) mais ne sont pas des secrets serveur. La protection des données repose sur **Authentication** et les **règles Firestore** (`firestore.rules`). Une vraie clé secrète (API backend, jeton tiers) ne devrait pas être commitée ; ces fichiers FlutterFire sont une exception documentée, conformément au sujet.
+`lib/firebase_options.dart` et `android/app/google-services.json` **ne sont pas versionnés** (voir `.gitignore`) : ils contiennent des identifiants liés à ton projet Firebase. La sécurité des données repose sur **Authentication** et **Firestore rules**, pas sur la confidentialité de ces fichiers — mais ils ne doivent pas rester dans l’historique public du dépôt.
+
+**Sur une machine neuve :**
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+Choisir le projet Firebase, cocher **Android** (et Web/Windows si besoin). Les fichiers réels remplacent les modèles `*.example`. Des clés déjà exposées sur GitHub peuvent être restreintes dans [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials (recommandé après retrait du dépôt).
 
 Déploiement des règles : `firebase deploy --only firestore:rules` (après `firebase init` si besoin) ou collage dans la console Firestore.
 
