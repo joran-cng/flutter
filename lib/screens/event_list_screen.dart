@@ -71,6 +71,20 @@ class _EventListScreenState extends State<EventListScreen> {
             onTap: () => MainShell.goToCartTabFrom(context),
           ),
           IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Réglages',
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.settings);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.drafts_outlined),
+            tooltip: 'Brouillons',
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.draftList);
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.contacts_outlined),
             tooltip: 'Annuaire',
             onPressed: () {

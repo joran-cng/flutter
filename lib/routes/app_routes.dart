@@ -8,4 +8,7 @@ abstract final class AppRoutes {
   static const String registration = '/registration';
   static const String eventCreation = '/event-creation';
   static const String eventSummary = '/event-summary';
+  static const String settings = '/settings';
+  static const String draftList = '/draft-list';
+  static const String draftEdit = '/draft-edit';
 }

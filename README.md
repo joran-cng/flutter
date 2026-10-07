@@ -1,6 +1,6 @@
 # flutter_application_1
 
-Application Flutter — Event Planner (TP 6 — Formulaires).
+Application Flutter — Event Planner (TP 7 — Stockage local).
 
 > J'étais absent le jour du TP02 (absence justifiée). Comme convenu avec le professeur, je reprends directement au TP03 à partir de la correction du TP02, puis au TP04.
 
@@ -211,6 +211,44 @@ Protocole fuite (observation) : commenter temporairement les `dispose()` des con
 | Conditions | obligatoire | SnackBar acceptation | non coché |
 
 Partie D (Stepper multi-étapes) : non réalisée (bonus).
+
+## TP 7 — Stockage local et préférences
+
+### Partie A — `PreferencesStore`
+
+- Clés : `lib/storage/preference_keys.dart` (`PreferenceKeys.all`).
+- Implémentation : `SharedPreferencesWithCache` + `allowList: PreferenceKeys.all` (accesseurs synchrones après `init()`).
+- **Choix API** : lectures fréquentes (thème, tri) au démarrage des écrans → cache avec `get` synchrones ; écritures via `set` async. `SharedPreferencesAsync` relirait la plateforme à chaque accès.
+- **Démarrage** : `await preferencesStore.init()` dans `main()` avant `runApp` (pas de flash de thème par défaut).
+- Écran **Réglages** (icône engrenage) ; sync vers `DisplayPreferences` pour la liste sans dupliquer la logique métier événements.
+
+### Partie B — Brouillons JSON
+
+- Modèle fichier : `lib/models/event_draft.dart` (`schemaVersion`, migration v1 `city` → v2 `location` + `reminderEnabled`).
+- Dépôt : `DraftRepository` dans `Documents/event_drafts/`, noms `draft_<id>.json`.
+- **Auto-save** : `DraftLifecycleObserver` sur `AppLifecycleState.paused`.
+- Liste / édition / suppression unitaire et globale ; taille fichier affichée (`FileSizeFormat`).
+
+**Fichier corrompu (démo)** : enregistrer un brouillon, localiser le `.json` via l'explorateur appareil ou `adb shell run-as …`, supprimer la dernière `}` avec un éditeur, rouvrir → message « Brouillon illisible ».
+
+### Partie C — Robustesse
+
+- **Écriture atomique** : `.json.tmp` puis `rename` vers le fichier final.
+- **Migration** : `fromJson` accepte `schemaVersion: 1` avec champ `city`.
+- **Purge** : fichiers `.tmp` du répertoire temporaire > 7 jours au lancement.
+- **`compute`** : parsing en lot lors du listage de tous les brouillons.
+
+| Répertoire | Durabilité | Sauvegarde système | Effaçable utilisateur |
+| --- | --- | --- | --- |
+| Documents | Oui (données app) | Souvent inclus (iCloud/Android backup) | Effacement données app |
+| Support | Oui | Variable | Effacement données app |
+| Temporaire | Non garanti | Non | Oui (cache) |
+
+Brouillons en **Documents** : durables, hors cache volatile.
+
+**Préférences vs fichiers** : ne pas y mettre la liste d'événements, le panier, ni des secrets ; contrat « petite config UI » vs fichier JSON atomique pour brouillons métier.
+
+Partie D (export/import global) : non réalisée.
 
 ## Lancer l'application
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../formatters/two_decimals_formatter.dart';
 import '../fields/date_range_form_field.dart';
-import '../models/event_draft.dart';
+import '../models/event_creation_draft.dart';
 import '../routes/app_routes.dart';
 import '../theme/spacing.dart';
 import '../validation/cross_field_rules.dart';
@@ -155,7 +155,7 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
         ? 0.0
         : (priceText.isEmpty ? 0.0 : double.parse(priceText));
 
-    final draft = EventDraft(
+    final draft = EventCreationDraft(
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
       category: _category!,

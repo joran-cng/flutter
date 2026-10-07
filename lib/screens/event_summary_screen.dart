@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/event_repository.dart';
-import '../models/event_draft.dart';
+import '../models/event_creation_draft.dart';
 import '../state/event_list_state.dart';
 import '../theme/spacing.dart';
 
 class EventSummaryScreen extends StatelessWidget {
   const EventSummaryScreen({super.key, required this.draft});
 
-  final EventDraft draft;
+  final EventCreationDraft draft;
 
   @override
   Widget build(BuildContext context) {

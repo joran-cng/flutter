@@ -4,11 +4,14 @@ import '../data/event_repository.dart';
 import '../models/event.dart';
 import '../screens/cart_summary_screen.dart';
 import '../screens/directory_screen.dart';
+import '../screens/draft_edit_screen.dart';
+import '../screens/draft_list_screen.dart';
+import '../screens/settings_screen.dart';
 import '../screens/event_detail_screen.dart';
 import '../screens/event_creation_screen.dart';
 import '../screens/event_list_screen.dart';
 import '../screens/event_summary_screen.dart';
-import '../models/event_draft.dart';
+import '../models/event_creation_draft.dart';
 import '../screens/participant_detail_screen.dart';
 import '../screens/registration_screen.dart';
 import '../screens/not_found_screen.dart';
@@ -99,6 +102,18 @@ class RouteGenerator {
         );
       case AppRoutes.eventSummary:
         return _buildEventSummaryRoute(settings);
+      case AppRoutes.settings:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SettingsScreen(),
+        );
+      case AppRoutes.draftList:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const DraftListScreen(),
+        );
+      case AppRoutes.draftEdit:
+        return _buildDraftEditRoute(settings);
       default:
         return _buildNotFoundRoute(settings);
     }
@@ -145,6 +160,18 @@ class RouteGenerator {
         );
       case AppRoutes.eventSummary:
         return _buildEventSummaryRoute(settings);
+      case AppRoutes.settings:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const SettingsScreen(),
+        );
+      case AppRoutes.draftList:
+        return MaterialPageRoute<void>(
+          settings: settings,
+          builder: (_) => const DraftListScreen(),
+        );
+      case AppRoutes.draftEdit:
+        return _buildDraftEditRoute(settings);
       default:
         return _buildNotFoundRoute(settings);
     }
@@ -210,9 +237,17 @@ class RouteGenerator {
     );
   }
 
+  static Route<dynamic> _buildDraftEditRoute(RouteSettings settings) {
+    final id = settings.arguments as String?;
+    return MaterialPageRoute<void>(
+      settings: settings,
+      builder: (_) => DraftEditScreen(draftId: id),
+    );
+  }
+
   static Route<dynamic> _buildEventSummaryRoute(RouteSettings settings) {
     final arguments = settings.arguments;
-    if (arguments is! EventDraft) {
+    if (arguments is! EventCreationDraft) {
       return MaterialPageRoute<void>(
         settings: settings,
         builder: (_) => const RouteErrorScreen(

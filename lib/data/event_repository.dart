@@ -1,5 +1,5 @@
 import '../models/event.dart';
-import '../models/event_draft.dart';
+import '../models/event_creation_draft.dart';
 import '../models/session.dart';
 
 class EventRepository {
@@ -152,7 +152,7 @@ class EventRepository {
     return null;
   }
 
-  void addFromDraft(EventDraft draft) {
+  void addFromDraft(EventCreationDraft draft) {
     final id = 'evt-new-${_events.length + 1}';
     final date = DateTime(
       draft.startDate.year,

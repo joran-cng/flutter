@@ -281,3 +281,65 @@ Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dess
 - Sur quoi l'IA m'a réellement fait gagner du temps : enchaînement focus, squelette `FormField`, rappel `PopScope`
 - Sur quoi elle m'a coûté du temps : première idée de règles croisées dans les `validator` individuels, à refactoriser
 - Ce que je saurais refaire sans elle à l'issue de ce TP : structurer un `Form`, composer des validateurs purs, gérer `dispose` des contrôleurs, produire un modèle typé après `save()`
+
+---
+
+# USAGE-IA — TP 7 — CAUNEGRE Joran
+
+Outil(s) utilisé(s) : ChatGPT (GPT-4o) / Cursor (autocomplétion)
+Déclaration : [ ] je n'ai utilisé aucune IA sur ce TP  /  [x] entrées ci-dessous
+
+## Entrée 1
+- Date et heure : 05/10/2026, 16h12
+- Partie du TP concernée : Partie A — `SharedPreferencesWithCache`
+- Pourquoi j'ai sollicité l'IA : proposition initiale avec `SharedPreferences.getInstance()`
+- Ce que j'ai obtenu : code legacy avec `getInstance()`
+- Décision : refusée
+- Si refusée ou corrigée, pourquoi : interdit par le sujet TP7 ; migration vers `SharedPreferencesWithCache.create` + `allowList`
+- Correction apportée et vérification faite : `flutter analyze`, prefs survivent à un kill de l'app
+
+## Entrée 2
+- Date et heure : 05/10/2026, 16h22
+- Partie du TP concernée : Partie A.5 — `main()` et init
+- Ce que j'ai demandé : `FutureBuilder` racine vs `await` avant `runApp`
+- Ce que j'ai obtenu : les deux patterns comparés
+- Décision : acceptée après correction
+- Si refusée ou corrigée, pourquoi : j'ai choisi `await init()` pour éviter un flash de thème clair
+- Correction apportée et vérification faite : premier lancement thème cohérent
+
+## Entrée 3
+- Date et heure : 05/10/2026, 16h32
+- Partie du TP concernée : Partie B — sauvegarde arrière-plan
+- Ce que j'ai demandé : exemple `WidgetsBindingObserver` + `paused`
+- Ce que j'ai obtenu : classe observer avec `didChangeAppLifecycleState`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : titre saisi → Home → retour app → brouillon restauré
+
+## Entrée 4
+- Date et heure : 05/10/2026, 16h45
+- Partie du TP concernée : Partie C.1 — écriture atomique
+- Ce que j'ai demandé : séquence tmp + `rename`
+- Ce que j'ai obtenu : `writeAsString` sur `.tmp` puis `rename`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : pas de JSON tronqué au nom final après kill simulé
+
+## Entrée 5
+- Date et heure : 05/10/2026, 17h00
+- Partie du TP concernée : Partie C.2 — migration schéma
+- Ce que j'ai demandé : relire un JSON v1 avec `city`
+- Ce que j'ai obtenu : branche `schemaVersion <= 1` dans `fromJson`
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : fichier v1 manuel → champ `location` rempli, `reminderEnabled` false
+
+## Entrée 6
+- Date et heure : 05/10/2026, 17h12
+- Partie du TP concernée : Partie B — fichier corrompu
+- Pourquoi j'ai sollicité l'IA : éviter un crash sur `jsonDecode`
+- Ce que j'ai obtenu : try/catch + message utilisateur
+- Décision : acceptée telle quelle
+- Correction apportée et vérification faite : accolade supprimée à la main → « Brouillon illisible »
+
+## Bilan
+- Sur quoi l'IA m'a réellement fait gagner du temps : squelette observer lifecycle, rappel API prefs 2.5.x
+- Sur quoi elle m'a coûté du temps : première piste `getInstance()` à écarter
+- Ce que je saurais refaire sans elle à l'issue de ce TP : centraliser les clés, init avant `runApp`, brouillon JSON atomique, ne pas confondre prefs et données métier

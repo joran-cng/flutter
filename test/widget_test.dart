@@ -1,38 +1,77 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 
-import 'package:flutter_application_1/data/event_repository.dart';
 import 'package:flutter_application_1/main.dart';
-import 'package:flutter_application_1/state/display_preferences.dart';
-import 'package:flutter_application_1/state/event_list_state.dart';
-import 'package:flutter_application_1/state/registration_cart.dart';
+import 'package:flutter_application_1/storage/preferences_store.dart';
+
+class FakePreferencesStore implements PreferencesStore {
+  AppThemeMode _theme = AppThemeMode.light;
+  EventSortOrder _sort = EventSortOrder.date;
+  String _category = '';
+  DisplayDensity _density = DisplayDensity.comfortable;
+  String _lastScreen = 'home';
+
+  @override
+  Future<void> init() async {}
+
+  @override
+  AppThemeMode get themeMode => _theme;
+
+  @override
+  Future<void> setThemeMode(AppThemeMode mode) async {
+    _theme = mode;
+  }
+
+  @override
+  EventSortOrder get defaultSort => _sort;
+
+  @override
+  Future<void> setDefaultSort(EventSortOrder order) async {
+    _sort = order;
+  }
+
+  @override
+  String get defaultCategoryFilter => _category;
+
+  @override
+  Future<void> setDefaultCategoryFilter(String category) async {
+    _category = category;
+  }
+
+  @override
+  DisplayDensity get displayDensity => _density;
+
+  @override
+  Future<void> setDisplayDensity(DisplayDensity density) async {
+    _density = density;
+  }
+
+  @override
+  String get lastScreen => _lastScreen;
+
+  @override
+  Future<void> setLastScreen(String screenName) async {
+    _lastScreen = screenName;
+  }
+
+  @override
+  Future<void> resetToDefaults() async {
+    _theme = AppThemeMode.light;
+    _sort = EventSortOrder.date;
+    _category = '';
+    _density = DisplayDensity.comfortable;
+    _lastScreen = 'home';
+  }
+}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   testWidgets('Event Planner affiche l\'écran d\'accueil', (tester) async {
+    final preferencesStore = FakePreferencesStore();
+    await preferencesStore.init();
+
     await tester.pumpWidget(
-      MultiProvider(
-        providers: [
-          Provider<EventRepository>(create: (_) => const EventRepository()),
-          ChangeNotifierProvider(create: (_) => DisplayPreferences()),
-          ChangeNotifierProxyProvider<EventRepository, RegistrationCart>(
-            create: (context) => RegistrationCart(
-              repository: context.read<EventRepository>(),
-            ),
-            update: (context, repository, previousCart) =>
-                previousCart!..updateRepository(repository),
-          ),
-          ChangeNotifierProxyProvider<EventRepository, EventListNotifier>(
-            create: (context) => EventListNotifier(
-              repository: context.read<EventRepository>(),
-            ),
-            update: (context, repository, previousNotifier) {
-              previousNotifier!.updateRepository(repository);
-              return previousNotifier;
-            },
-          ),
-        ],
-        child: const EventPlannerApp(),
-      ),
+      EventPlannerRoot(preferencesStore: preferencesStore),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
